@@ -17,6 +17,11 @@ import java.io.InputStreamReader;
 public class Analysis {
 
     //data files were pre filtered in a separate python script to only show data for Texas
+    //the reason I used python is because I wanted to take advantage of multiprocessing due to the
+    //density of the data in each year. Running multiple interpreters was far less resource intensive
+    //than running multiple JVMs.
+
+
     InputStream isd_history, us_data_1940_file, us_data_1950_file, us_data_1951_file, us_data_1960_file, us_data_1970_file;
     Table weatherDataDF;
 
