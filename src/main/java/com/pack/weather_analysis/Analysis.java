@@ -2,25 +2,23 @@ package com.pack.weather_analysis;
 
 import tech.tablesaw.aggregate.NumericAggregateFunction;
 import tech.tablesaw.api.*;
-import tech.tablesaw.columns.Column;
-import tech.tablesaw.io.csv.CsvReadOptions;
 import tech.tablesaw.plotly.*;
 import tech.tablesaw.plotly.api.LinePlot;
-import tech.tablesaw.plotly.api.ScatterPlot;
+
 import tech.tablesaw.selection.Selection;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+
+
 
 public class Analysis {
 
+    //data files were pre filtered in a separate python script to only show data for Texas
     InputStream isd_history, us_data_1940_file, us_data_1950_file, us_data_1951_file, us_data_1960_file, us_data_1970_file;
-    Table stationsDF, weatherDataDF;
+    Table weatherDataDF;
 
     //Initialize the dataframe with all the year data we will be using.
     //The year data is stored in the resources folder of this project.
@@ -39,11 +37,6 @@ public class Analysis {
             BufferedReader bufferedReader1950 = new BufferedReader( new InputStreamReader( us_data_1950_file ) );
             BufferedReader bufferedReader1960 = new BufferedReader( new InputStreamReader( us_data_1960_file ) );
             BufferedReader bufferedReader1970 = new BufferedReader( new InputStreamReader( us_data_1970_file ) );
-//            BufferedReader bufferedReaderStations = new BufferedReader( new InputStreamReader( isd_history ) );
-
-//            stationsDF = Table.read().csv(CsvReadOptions
-//                            .builder(bufferedReaderStations, "Weather Stations")
-//                            .sample(false));
 
             //read the data into our weatherData dataframe
             weatherDataDF = Table.read().csv(bufferedReader1940, "1940 - 1970 Weather Data");
