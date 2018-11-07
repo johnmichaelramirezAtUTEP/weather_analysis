@@ -2,6 +2,8 @@ package com.pack.weather_analysis;
 
 import tech.tablesaw.aggregate.NumericAggregateFunction;
 import tech.tablesaw.api.*;
+import tech.tablesaw.columns.Column;
+import tech.tablesaw.joining.DataFrameJoiner;
 import tech.tablesaw.plotly.*;
 import tech.tablesaw.plotly.api.LinePlot;
 
@@ -13,7 +15,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 
-
 public class Analysis {
 
     //data files were pre filtered in a separate python script to only show data for Texas
@@ -23,13 +24,12 @@ public class Analysis {
 
 
     InputStream isd_history, us_data_1940_file, us_data_1950_file, us_data_1951_file, us_data_1960_file, us_data_1970_file;
-    Table weatherDataDF;
+    Table stationsDF, weatherDataDF;
 
     //Initialize the dataframe with all the year data we will be using.
     //The year data is stored in the resources folder of this project.
     public void setUpDataFrames() {
         //get our data as input streams from the resources folder
-        isd_history = getClass().getResourceAsStream("isd_history.csv");
         us_data_1940_file = getClass().getResourceAsStream("1940_data.csv");
         us_data_1950_file = getClass().getResourceAsStream("1950_data.csv");
         us_data_1960_file = getClass().getResourceAsStream("1960_data.csv");
@@ -68,7 +68,7 @@ public class Analysis {
     }
 
     //Calculates the average temperature for each month of each year in our dataframe
-    public void avgStateTemp() {
+    public Table avgStateTempByMonthYear() {
         //Get the average air temperature for all US stations for all four years (1940, 1950, 1960, 1970)
         Table avgTemp = weatherDataDF.summarize("AIR_TEMP", new NumericAggregateFunction("") {
             @Override
@@ -77,43 +77,69 @@ public class Analysis {
             }
         }).by("YEAR", "MONTH");
 
-        //display the dataframes as lineplots
-        Plot.show(LinePlot.create("Avg Temp in Texas 1940 - 1970", avgTemp, "MONTH", "[AIR_TEMP]", "YEAR"));
+        return avgTemp;
     }
 
-    //Calculates the average air pressure, average wind speed,
-    //and average sky code for each year in our dataframe
-    public void weatherConditions(){
+    //Calculates the average air pressure for each month of each year in our dataframe
+    public Table avgAirPressureByMonthYear(){
         //Filter out the -9999 values in the sea_lvl_pressure column
         Selection airPressureFilter = weatherDataDF.numberColumn("SEA_LVL_PRESSURE").isNotEqualTo(-9999);
         Table filteredAirPressure = weatherDataDF.where(airPressureFilter);
 
-        //Filter out the -9999 values in the wind_speed_rate column
-        Selection windSpeedFilter = filteredAirPressure.numberColumn("WIND_SPEED_RATE").isNotEqualTo(-9999);
-        Table filteredWeatherConditions = filteredAirPressure.where(windSpeedFilter);
-
-        //calculate the mean sea_lvl_pressure and wind speed rate in our filtered dataframe,
-        //groups the summary by year and month
-        Table weatherInfo = filteredWeatherConditions.summarize("SEA_LVL_PRESSURE", "WIND_SPEED_RATE", new NumericAggregateFunction("") {
+        Table airPressureMean = filteredAirPressure.summarize("SEA_LVL_PRESSURE", new NumericAggregateFunction("") {
             @Override
             public Double summarize(NumericColumn<?> column) {
                 return column.mean() / 10;
             }
-        }).by("YEAR", "MONTH").setName("AVG Air Pressure & Wind Speed");
+        }).by("YEAR", "MONTH").setName("AVG Air Pressure");
 
+        return airPressureMean;
+    }
+
+    //Calculates the average wind speed for each month of each year in our dataframe
+    public Table avgWindSpeedByMonthYear(){
+        //Filter out the -9999 values in the wind_speed_rate column
+        Selection windSpeedFilter = weatherDataDF.numberColumn("WIND_SPEED_RATE").isNotEqualTo(-9999);
+        Table filteredWindSpeed = weatherDataDF.where(windSpeedFilter);
+
+        Table windSpeedMean = filteredWindSpeed.summarize("WIND_SPEED_RATE", new NumericAggregateFunction("") {
+            @Override
+            public Double summarize(NumericColumn<?> column) {
+                return column.mean() / 10;
+            }
+        }).by("YEAR", "MONTH").setName("AVG Wind Speed");
+
+        return windSpeedMean;
+    }
+
+    //Calculates the average sky coverage for each month of each year in our dataframe
+    public Table avgSkyCvgByMonthYear(){
         //Filter out the -9999 values in the sky_cvrg_code column
         Selection skyCoverageFilter = weatherDataDF.numberColumn("SKY_CVRG_CODE").isNotEqualTo(-9999);
         Table skyCoverageInfo = weatherDataDF.where(skyCoverageFilter);
-        skyCoverageInfo = skyCoverageInfo.summarize("SKY_CVRG_CODE", new NumericAggregateFunction("") {
+        Table skyCoverageMean = skyCoverageInfo.summarize("SKY_CVRG_CODE", new NumericAggregateFunction("") {
             @Override
             public Double summarize(NumericColumn<?> column) {
                 return column.mean();
             }
         }).by("YEAR", "MONTH").setName("Avg Sky Coverage per Month");
+        return skyCoverageMean;
+    }
 
-        //display the dataframes as lineplots
-        Plot.show(LinePlot.create("Avg Air Pressure in Texas 1940 - 1970", weatherInfo, "MONTH", "[SEA_LVL_PRESSURE]", "YEAR"));
-        Plot.show(LinePlot.create("Avg Wind Speed in Texas 1940 - 1970", weatherInfo, "MONTH", "[WIND_SPEED_RATE]", "YEAR"));
-        Plot.show(LinePlot.create("Avg Sky Coverage in Texas 1950 - 1970", skyCoverageInfo, "MONTH", "[SKY_CVRG_CODE]", "YEAR"));
+    public void plotLineGraph(String title, Table table, String xColName, String yColName, String groupColName){
+        for (Column<?> column: table.columns()) {
+            if(column.isEmpty()){
+                table.removeColumns(column.name());
+            }
+        }
+        if(table.columnCount() == 0){
+            return;
+        }
+        Plot.show(LinePlot.create(title, table, xColName, yColName, groupColName));
+    }
+
+    public Table innerJoinTable(Table table1, Table table2, String... columnNames){
+        DataFrameJoiner joiner = table1.join(columnNames);
+        return joiner.inner(table2);
     }
 }
