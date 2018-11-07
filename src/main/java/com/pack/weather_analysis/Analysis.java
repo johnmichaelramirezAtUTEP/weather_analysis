@@ -13,6 +13,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 
 public class Analysis {
@@ -22,49 +25,89 @@ public class Analysis {
     //density of the data in each year. Running multiple interpreters was far less resource intensive
     //than running multiple JVMs.
 
+    InputStream us_data_1940_file, us_data_1950_file, us_data_1951_file, us_data_1960_file, us_data_1970_file;
+    Table weatherDataDF;
 
-    InputStream isd_history, us_data_1940_file, us_data_1950_file, us_data_1951_file, us_data_1960_file, us_data_1970_file;
-    Table stationsDF, weatherDataDF;
-
-    //Initialize the dataframe with all the year data we will be using.
+    //Initialize the dataframe with the 1940 data to establish columns.
     //The year data is stored in the resources folder of this project.
     public void setUpDataFrames() {
-        //get our data as input streams from the resources folder
-        us_data_1940_file = getClass().getResourceAsStream("1940_data.csv");
-        us_data_1950_file = getClass().getResourceAsStream("1950_data.csv");
-        us_data_1960_file = getClass().getResourceAsStream("1960_data.csv");
-        us_data_1970_file = getClass().getResourceAsStream("1970_data.csv");
-
-        try
-        {
-            //convert the input streams to buffered readers
-            BufferedReader bufferedReader1940 = new BufferedReader( new InputStreamReader( us_data_1940_file ) );
-            BufferedReader bufferedReader1950 = new BufferedReader( new InputStreamReader( us_data_1950_file ) );
-            BufferedReader bufferedReader1960 = new BufferedReader( new InputStreamReader( us_data_1960_file ) );
-            BufferedReader bufferedReader1970 = new BufferedReader( new InputStreamReader( us_data_1970_file ) );
-
-            //read the data into our weatherData dataframe
-            weatherDataDF = Table.read().csv(bufferedReader1940, "1940 - 1970 Weather Data");
-            weatherDataDF.append(Table.read().csv(bufferedReader1950, ""));
-            weatherDataDF.append(Table.read().csv(bufferedReader1960, ""));
-            weatherDataDF.append(Table.read().csv(bufferedReader1970, ""));
-        }
-        catch( IOException e )
-        {
-            System.err.println( "Error: " + e );
-        }
-
+        weatherDataDF = load1940Data();
     }
 
-    //Adds the data for 1951 to our dataframe
-    public void add1951Data(){
-        us_data_1951_file = getClass().getResourceAsStream("1951_data.csv");
-        BufferedReader bufferedReader1951 = new BufferedReader( new InputStreamReader( us_data_1951_file ) );
+    public void loadWeatherData(){
+        weatherDataDF.append(load1950Data());
+        weatherDataDF.append(load1960Data());
+        weatherDataDF.append(load1970Data());
+    }
+
+    public Table load1940Data(){
+        //get our data as input streams from the resources folder
+        us_data_1940_file = getClass().getResourceAsStream("1940_data.csv");
+
+        //convert the input streams to buffered readers
+        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader( us_data_1940_file ) );
         try {
-            weatherDataDF.append(Table.read().csv(bufferedReader1951, ""));
+            return Table.read().csv(bufferedReader, "");
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    public Table load1950Data(){
+        //get our data as input streams from the resources folder
+        us_data_1950_file = getClass().getResourceAsStream("1950_data.csv");
+
+        //convert the input streams to buffered readers
+        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader( us_data_1950_file ) );
+        try {
+            return Table.read().csv(bufferedReader, "");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Table load1951Data(){
+        //get our data as input streams from the resources folder
+        us_data_1951_file = getClass().getResourceAsStream("1951_data.csv");
+
+        //convert the input streams to buffered readers
+        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader( us_data_1951_file ) );
+        try {
+            return Table.read().csv(bufferedReader, "");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Table load1960Data(){
+        //get our data as input streams from the resources folder
+        us_data_1960_file = getClass().getResourceAsStream("1960_data.csv");
+
+        //convert the input streams to buffered readers
+        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader( us_data_1960_file ) );
+        try {
+            return Table.read().csv(bufferedReader, "");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Table load1970Data(){
+        //get our data as input streams from the resources folder
+        us_data_1970_file = getClass().getResourceAsStream("1970_data.csv");
+
+        //convert the input streams to buffered readers
+        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader( us_data_1970_file ) );
+        try {
+            return Table.read().csv(bufferedReader, "");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     //Calculates the average temperature for each month of each year in our dataframe
@@ -126,6 +169,10 @@ public class Analysis {
         return skyCoverageMean;
     }
 
+    public void appendTableToMainDataFrame(Table table){
+        weatherDataDF.append(table);
+    }
+
     public void plotLineGraph(String title, Table table, String xColName, String yColName, String groupColName){
         for (Column<?> column: table.columns()) {
             if(column.isEmpty()){
@@ -141,5 +188,29 @@ public class Analysis {
     public Table innerJoinTable(Table table1, Table table2, String... columnNames){
         DataFrameJoiner joiner = table1.join(columnNames);
         return joiner.inner(table2);
+    }
+
+    public InputStream getUs_data_1940_file() {
+        return us_data_1940_file;
+    }
+
+    public InputStream getUs_data_1950_file() {
+        return us_data_1950_file;
+    }
+
+    public InputStream getUs_data_1951_file() {
+        return us_data_1951_file;
+    }
+
+    public InputStream getUs_data_1960_file() {
+        return us_data_1960_file;
+    }
+
+    public InputStream getUs_data_1970_file() {
+        return us_data_1970_file;
+    }
+
+    public Table getWeatherDataDF() {
+        return weatherDataDF;
     }
 }

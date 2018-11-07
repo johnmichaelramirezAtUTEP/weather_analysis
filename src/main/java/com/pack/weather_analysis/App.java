@@ -11,6 +11,7 @@ public class App
 
         //add the four years of data to the dataframe
         analysis.setUpDataFrames();
+        analysis.loadWeatherData();
 
         //lets look at the avg wind speed and air pressure for the four years
         Table avgAirPressureByMonthYear = analysis.avgAirPressureByMonthYear();
@@ -25,7 +26,7 @@ public class App
 
         //lets join the tables and print them out
         Table joinedPressureCvg = analysis.innerJoinTable(avgAirPressureByMonthYear, avgSkyCvgByMonthYear, "YEAR", "MONTH");
-        Table weatherConditions = analysis.innerJoinTable(joinedPressureCvg, avgWindSpeedByMonthYear, "YEAR", "MONTH");
+        Table weatherConditions = analysis.innerJoinTable(joinedPressureCvg, avgWindSpeedByMonthYear, "YEAR", "MONTH").setName("Weather Conditions");
         System.out.println(weatherConditions);
 
 
@@ -36,7 +37,7 @@ public class App
         //for 1950 dips significantly after month 7
 
         //lets load data for 1951 to see if the low temps continue
-        analysis.add1951Data();
+        analysis.appendTableToMainDataFrame(analysis.load1951Data());
 
         //lets take a look at the avg temp of texas for the five years
         avgStateTempByMonthYear = analysis.avgStateTempByMonthYear();
@@ -62,7 +63,7 @@ public class App
 
         //lets join the tables with the updated years and print it
         joinedPressureCvg = analysis.innerJoinTable(avgAirPressureByMonthYear, avgSkyCvgByMonthYear, "YEAR", "MONTH");
-        weatherConditions = analysis.innerJoinTable(joinedPressureCvg, avgWindSpeedByMonthYear, "YEAR", "MONTH");
+        weatherConditions = analysis.innerJoinTable(joinedPressureCvg, avgWindSpeedByMonthYear, "YEAR", "MONTH").setName("Weather Conditions");
         System.out.println(weatherConditions);
 
 
