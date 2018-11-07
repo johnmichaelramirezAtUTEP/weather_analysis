@@ -15,6 +15,7 @@ public class AnalysisTest {
     public void setUp() throws Exception {
         analysis = new Analysis();
         analysis.setUpDataFrames();
+        analysis.loadWeatherData();
     }
 
     @After
