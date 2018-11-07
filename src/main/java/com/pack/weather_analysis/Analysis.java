@@ -25,8 +25,8 @@ public class Analysis {
     //density of the data in each year. Running multiple interpreters was far less resource intensive
     //than running multiple JVMs.
 
-    InputStream us_data_1940_file, us_data_1950_file, us_data_1951_file, us_data_1960_file, us_data_1970_file;
-    Table weatherDataDF;
+    private InputStream us_data_1940_file, us_data_1950_file, us_data_1951_file, us_data_1960_file, us_data_1970_file;
+    private Table weatherDataDF;
 
     //Initialize the dataframe with the 1940 data to establish columns.
     //The year data is stored in the resources folder of this project.
@@ -188,29 +188,5 @@ public class Analysis {
     public Table innerJoinTable(Table table1, Table table2, String... columnNames){
         DataFrameJoiner joiner = table1.join(columnNames);
         return joiner.inner(table2);
-    }
-
-    public InputStream getUs_data_1940_file() {
-        return us_data_1940_file;
-    }
-
-    public InputStream getUs_data_1950_file() {
-        return us_data_1950_file;
-    }
-
-    public InputStream getUs_data_1951_file() {
-        return us_data_1951_file;
-    }
-
-    public InputStream getUs_data_1960_file() {
-        return us_data_1960_file;
-    }
-
-    public InputStream getUs_data_1970_file() {
-        return us_data_1970_file;
-    }
-
-    public Table getWeatherDataDF() {
-        return weatherDataDF;
     }
 }
