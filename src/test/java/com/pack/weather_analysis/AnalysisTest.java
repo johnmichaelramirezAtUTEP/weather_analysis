@@ -22,6 +22,39 @@ public class AnalysisTest {
     }
 
 
+    //Test that the tables were properly initialized with the file data
+
+    @Test
+    public void weatherDataFor1940Loaded(){
+        Table table = analysis.load1940Data();
+        assertNotNull(table);
+    }
+
+    @Test
+    public void weatherDataFor1950Loaded(){
+        Table table = analysis.load1950Data();
+        assertNotNull(table);
+    }
+
+    @Test
+    public void weatherDataFor1951Loaded(){
+        Table table = analysis.load1951Data();
+        assertNotNull(table);
+    }
+
+    @Test
+    public void weatherDataFor1960Loaded(){
+        Table table = analysis.load1960Data();
+        assertNotNull(table);
+    }
+
+    @Test
+    public void weatherDataFor1970Loaded(){
+        Table table = analysis.load1970Data();
+        assertNotNull(table);
+    }
+    //
+
     //Test the number of columns contained in each Table
 
     @Test
